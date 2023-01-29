@@ -72,6 +72,10 @@ let%expect_test _ =
   [%expect {| (Abs ("varname", (Var "varname"))) |}]
 
 let%expect_test _ =
+  e_test_f {|(λvarnameone varnametwo.varname)|};
+  [%expect {| : char '(' |}]
+
+let%expect_test _ =
   e_test_ss {|  (  λvarname.varname  )  |};
   [%expect {| (Abs ("varname", (Var "varname"))) |}]
 
@@ -179,6 +183,5 @@ let%expect_test _ =
 
 let%expect_test _ =
   e_test_f {|(varname (varname) varname)|};
-  [%expect
-    {|
+  [%expect {|
     : char '(' |}]
