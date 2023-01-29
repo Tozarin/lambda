@@ -1,0 +1,8 @@
+(library
+ (name lambda)
+ (public_name lambda)
+ (modules parser ast interpreter)
+ (libraries angstrom)
+ (preprocess
+  (pps ppx_expect ppx_deriving.show ppx_compare))
+ (inline_tests))
