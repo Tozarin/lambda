@@ -21,8 +21,8 @@ let expr =
       let var = varname >>= fun v -> return @@ Var v in
       let abs =
         parents
-          ( trim lambda *> varname <* trim @@ char '.' >>= fun v ->
-            e >>= fun e -> return @@ Abs (v, e) )
+          ( trim lambda *> sep_by ws varname <* trim @@ char '.' >>= fun vs ->
+            e >>= fun e -> return @@ Abs (vs, e) )
       in
       let app =
         parents
@@ -69,39 +69,39 @@ let%expect_test _ =
 
 let%expect_test _ =
   e_test_ss {|(λvarname.varname)|};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
-  e_test_f {|(λvarnameone varnametwo.varname)|};
-  [%expect {| : char '(' |}]
+  e_test_ss {|(λvarnameone varnametwo.varname)|};
+  [%expect{| (Abs (["varnameone"; "varnametwo"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|  (  λvarname.varname  )  |};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(  λ  varname.varname)|};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λ    varname   .varname)|};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λvarname  .  varname)|};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λvarname.   varname   )|};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|  (   λ   varname  .  varname  )  |};
-  [%expect {| (Abs ("varname", (Var "varname"))) |}]
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λvarnameone.varnametwo)|};
-  [%expect {| (Abs ("varnameone", (Var "varnametwo"))) |}]
+  [%expect {| (Abs (["varnameone"], (Var "varnametwo"))) |}]
 
 let%expect_test _ =
   e_test_ss {|(varname varname)|};
@@ -133,36 +133,36 @@ let%expect_test _ =
 
 let%expect_test _ =
   e_test_ss {|((λvarname.varname) varname)|};
-  [%expect {| (App ((Abs ("varname", (Var "varname"))), (Var "varname"))) |}]
+  [%expect {| (App ((Abs (["varname"], (Var "varname"))), (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|((λvarnameone.varnametwo) varnamethree)|};
   [%expect
-    {| (App ((Abs ("varnameone", (Var "varnametwo"))), (Var "varnamethree"))) |}]
+    {| (App ((Abs (["varnameone"], (Var "varnametwo"))), (Var "varnamethree"))) |}]
 
 let%expect_test _ =
   e_test_ss {|((λvarname.varname) (λvarname.varname))|};
   [%expect
     {|
-    (App ((Abs ("varname", (Var "varname"))), (Abs ("varname", (Var "varname")))
-       )) |}]
+    (App ((Abs (["varname"], (Var "varname"))),
+       (Abs (["varname"], (Var "varname"))))) |}]
 
 let%expect_test _ =
   e_test_ss {|(varname (λvarname.varname))|};
   [%expect
     {|
-    (App ((Var "varname"), (Abs ("varname", (Var "varname"))))) |}]
+    (App ((Var "varname"), (Abs (["varname"], (Var "varname"))))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λvarname.(varname varname))|};
   [%expect
     {|
-    (Abs ("varname", (App ((Var "varname"), (Var "varname"))))) |}]
+    (Abs (["varname"], (App ((Var "varname"), (Var "varname"))))) |}]
 
 let%expect_test _ =
   e_test_ss {|(λvarname.(λvarname.varname))|};
   [%expect {|
-    (Abs ("varname", (Abs ("varname", (Var "varname"))))) |}]
+    (Abs (["varname"], (Abs (["varname"], (Var "varname"))))) |}]
 
 let%expect_test _ =
   e_test_f {|(varname varname varname)|};
