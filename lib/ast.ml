@@ -6,4 +6,4 @@ type expr =
 [@@deriving show { with_path = false }]
 
 type out_f = Outf of string * expr [@@deriving show { with_path = false }]
-type line = Expr of expr | F of out_f [@@deriving show { with_path = false }]
+type line = E of expr | F of out_f [@@deriving show { with_path = false }]
