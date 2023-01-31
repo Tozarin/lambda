@@ -12,7 +12,7 @@ let parents p = char '(' *> trim p <* char ')'
 let is_l = function 'a' .. 'z' -> true | _ -> false
 let varname = take_while1 is_l
 let var = varname >>= fun v -> return @@ Var v
-let lambda = string "λ"
+let lambda = string "λ" <|> string "\\"
 
 (** <varname> ::= v
     <expr> ::= <varname> | (λ<varname>.<expr>) | (<expr> <expr>) *)
@@ -21,7 +21,8 @@ let expr =
       let var = varname >>= fun v -> return @@ Var v in
       let abs =
         parents
-          ( trim lambda *> sep_by ws varname <* trim @@ char '.' >>= fun vs ->
+          ( trim lambda *> sep_by ws varname <* trim (string "." <|> string "->")
+          >>= fun vs ->
             e >>= fun e -> return @@ Abs (vs, e) )
       in
       let app =
@@ -72,8 +73,20 @@ let%expect_test _ =
   [%expect {| (Abs (["varname"], (Var "varname"))) |}]
 
 let%expect_test _ =
+  e_test_ss {|(\varname.varname)|};
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
+
+let%expect_test _ =
+  e_test_ss {|(λvarname->varname)|};
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
+
+let%expect_test _ =
+  e_test_ss {|(\varname->varname)|};
+  [%expect {| (Abs (["varname"], (Var "varname"))) |}]
+
+let%expect_test _ =
   e_test_ss {|(λvarnameone varnametwo.varname)|};
-  [%expect{| (Abs (["varnameone"; "varnametwo"], (Var "varname"))) |}]
+  [%expect {| (Abs (["varnameone"; "varnametwo"], (Var "varname"))) |}]
 
 let%expect_test _ =
   e_test_ss {|  (  λvarname.varname  )  |};
