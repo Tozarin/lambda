@@ -15,7 +15,7 @@ let var = varname >>= fun v -> return @@ Var v
 let lambda = string "λ" <|> string "\\"
 
 (** <varname> ::= v
-    <expr> ::= <varname> | (λ<varname>.<expr>) | (<expr> <expr>) *)
+    <expr> ::= <varname> | (λ<varname> ... <varname>.<expr>) | (<expr> ... <expr>) *)
 let expr =
   fix (fun e ->
       let var = varname >>= fun v -> return @@ Var v in
@@ -29,7 +29,8 @@ let expr =
       let app =
         parents
           ( trim e >>= fun e1 ->
-            trim e >>= fun e2 -> return @@ App (e1, e2) )
+            many1 @@ trim e >>= fun es ->
+            return @@ List.fold_left (fun x y -> App (x, y)) e1 es )
       in
       trim @@ conde [ var; abs; app ])
 
@@ -179,9 +180,9 @@ let%expect_test _ =
     (Abs ("varname", (Abs ("varname", (Var "varname"))))) |}]
 
 let%expect_test _ =
-  e_test_f {|(varname varname varname)|};
-  [%expect {|
-    : char ')' |}]
+  e_test_ss {|(varnameone varnametwo varnamethree)|};
+  [%expect
+    {| (App ((App ((Var "varnameone"), (Var "varnametwo"))), (Var "varnamethree"))) |}]
 
 let%expect_test _ =
   e_test_ss {|((varname varname) varname)|};
@@ -199,6 +200,14 @@ let%expect_test _ =
   e_test_f {|(varname (varname) varname)|};
   [%expect {|
     : char '(' |}]
+
+let%expect_test _ =
+  e_test_ss {|(\x y z -> (x y z))|};
+  [%expect
+    {|
+    (Abs ("x",
+       (Abs ("y", (Abs ("z", (App ((App ((Var "x"), (Var "y"))), (Var "z")))))))
+       )) |}]
 
 let%expect_test _ =
   e_test_ss {|(\x y z -> ((x y) z))|};
