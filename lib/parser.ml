@@ -23,7 +23,8 @@ let var = varname >>= fun v -> return @@ Var v
 let lambda = string "λ" <|> string "\\"
 
 (** <varname> ::= v
-    <expr> ::= <varname> | (λ<varname> ... <varname>.<expr>) | (<expr> ... <expr>) *)
+    <funname> ::= f
+    <expr> ::= <varname> | (λ<varname> ... <varname>.<expr>) | (<expr> ... <expr>) | [<funname>]*)
 let expr =
   fix (fun e ->
       let var = varname >>= fun v -> return @@ Var v in
@@ -273,11 +274,11 @@ let%expect_test _ =
 
 let%expect_test _ =
   e_test_ss {|(\x -> [foo])|};
-  [%expect{| (Expr (Abs ("x", (Fun "foo")))) |}]
+  [%expect {| (Expr (Abs ("x", (Fun "foo")))) |}]
 
 let%expect_test _ =
   e_test_ss {|(\x -> ([foo] [foo]))|};
-  [%expect{| (Expr (Abs ("x", (App ((Fun "foo"), (Fun "foo")))))) |}]
+  [%expect {| (Expr (Abs ("x", (App ((Fun "foo"), (Fun "foo")))))) |}]
 
 let%expect_test _ =
   f_test_ss {|foo=varname|};
