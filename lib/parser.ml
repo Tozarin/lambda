@@ -1,3 +1,7 @@
+(** Copyright 2023, Startsev Matvey *)
+
+(** SPDX-License-Identifier: LGPL-3.0-or-later *)
+
 open Angstrom
 open Ast
 
@@ -224,8 +228,7 @@ let%expect_test _ =
 
 let%expect_test _ =
   e_test_ss {|(λvarname.(λvarname.varname))|};
-  [%expect
-    {|
+  [%expect {|
     (E (Abs ("varname", (Abs ("varname", (Var "varname")))))) |}]
 
 let%expect_test _ =

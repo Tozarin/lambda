@@ -1,3 +1,7 @@
+(** Copyright 2023, Startsev Matvey *)
+
+(** SPDX-License-Identifier: LGPL-3.0-or-later *)
+
 type expr =
   | Abs of string * expr
   | App of expr * expr
