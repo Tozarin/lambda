@@ -16,9 +16,10 @@ let parents p = char '(' *> trim p <* char ')'
 let is_l = function 'a' .. 'z' -> true | _ -> false
 let is_d = function '0' .. '9' -> true | _ -> false
 let varname = take_while1 is_l
+let fn = take_while1 (fun x -> is_d x || is_l x)
 
 let funname =
-  take_while1 (fun x -> is_d x || is_l x) >>= fun name ->
+  fn >>= fun name ->
   match int_of_string_opt name with
   | Some _ -> fail "Funname can not be a number"
   | None -> return name
@@ -45,9 +46,7 @@ let expr =
             many1 @@ trim e >>= fun es ->
             return @@ List.fold_left (fun x y -> App (x, y)) e1 es )
       in
-      let foon =
-        char '[' *> trim funname <* char ']' >>= fun f -> return @@ Fun f
-      in
+      let foon = char '[' *> trim fn <* char ']' >>= fun f -> return @@ Fun f in
       trim @@ conde [ var; abs; app; foon ])
 
 let foon =
