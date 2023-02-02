@@ -57,6 +57,10 @@ let foon =
 let ex = expr >>= fun e -> return @@ E e
 let parser = parse_string ~consume:All (trim @@ conde [ ex; foon ])
 
+type 'a parse_rezult = Parsed of 'a | Failed of string
+
+let eval s = match parser s with Ok x -> Parsed x | Error msg -> Failed msg
+
 (*****************************tests*****************************)
 let parse_opt p s = Result.get_ok @@ parse_string ~consume:All p s
 let parse_unopt p s = Result.get_error @@ parse_string ~consume:All p s
