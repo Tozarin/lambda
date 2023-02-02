@@ -49,6 +49,64 @@ module Interpreter (M : MONADERROR) = struct
       );
       ("true", Abs ("x", Abs ("y", Var "x")));
       ("false", Abs ("x", Abs ("y", Var "y")));
+      ( "iszero",
+        Abs ("n", App (App (Var "n", Abs ("x", Fun "false")), Fun "true")) );
+      ( "y",
+        Abs
+          ( "f",
+            App
+              ( Abs ("x", App (Var "f", App (Var "x", Var "x"))),
+                Abs ("x", App (Var "f", App (Var "x", Var "x"))) ) ) );
+      ( "z",
+        Abs
+          ( "f",
+            App
+              ( Abs
+                  ( "x",
+                    App
+                      (Var "f", Abs ("v", App (App (Var "x", Var "x"), Var "v")))
+                  ),
+                Abs
+                  ( "x",
+                    App
+                      (Var "f", Abs ("v", App (App (Var "x", Var "x"), Var "v")))
+                  ) ) ) );
+      ( "dec",
+        Abs
+          ( "n",
+            Abs
+              ( "f",
+                Abs
+                  ( "x",
+                    App
+                      ( App
+                          ( App
+                              ( Var "n",
+                                Abs
+                                  ( "g",
+                                    Abs
+                                      ( "h",
+                                        App (Var "h", App (Var "g", Var "f")) )
+                                  ) ),
+                            Abs ("u", Var "x") ),
+                        Abs ("u", Var "u") ) ) ) ) );
+      ( "sum",
+        Abs
+          ( "m",
+            Abs
+              ( "n",
+                Abs
+                  ( "f",
+                    Abs
+                      ( "x",
+                        App
+                          ( App (Var "m", Var "f"),
+                            App (App (Var "n", Var "f"), Var "x") ) ) ) ) ) );
+      ( "mul",
+        Abs
+          ( "m",
+            Abs ("n", App (App (Var "m", App (Fun "sum", Var "n")), Fun "0")) )
+      );
     ]
 
   let prep = function [] -> FunMap.empty | l -> FunMap.of_seq (List.to_seq l)
