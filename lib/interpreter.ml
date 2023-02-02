@@ -3,6 +3,7 @@
 (** SPDX-License-Identifier: LGPL-3.0-or-later *)
 
 open Ast
+open Utils
 
 module type MONAD = sig
   type 'a t
@@ -58,9 +59,6 @@ module Interpreter (M : MONADERROR) = struct
       | n -> helper (App (Var "s", acc)) (n - 1)
     in
     Abs ("s", Abs ("t", helper (Var "t") n))
-
-  let l_remove_str x list = List.filter (fun y -> not @@ String.equal x y) list
-  let l_cont_str x list = List.exists (fun y -> String.equal x y) list
 
   let free_vars term =
     let rec helper acc = function
