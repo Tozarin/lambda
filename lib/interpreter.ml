@@ -171,9 +171,30 @@ module Interpreter (M : MONADERROR) = struct
               | Some x -> return x
               | None -> error @@ "Can not find function " ^ x)
         in
-        e x >>= fun e -> small_step_cbn env e
+        e x
+    | App (e1, e2) -> (
+        match e1 with
+        | Abs (v, t) -> return @@ subset v e2 t
+        | _ -> small_step_cbn env e1 >>= fun e1 -> return @@ App (e1, e2))
+
+  (*TODO: make beauty*)
+  let rec small_step_no env = function
+    | Var x -> return @@ Var x
+    | Abs (x, y) -> small_step_no env y >>= fun y -> return @@ Abs (x, y)
+    | Fun x ->
+        let e x =
+          match int_of_string_opt x with
+          | Some x -> return @@ dgen x
+          | None -> (
+              match FunMap.find_opt x env with
+              | Some x -> return x
+              | None -> error @@ "Can not find function " ^ x)
+        in
+        e x >>= fun e -> small_step_no env e
     | App (e1, e2) -> (
         small_step_cbn env e1 >>= function
-        | Abs (v, t) -> return @@ subset v e2 t
-        | e1 -> return @@ App (e1, e2))
+        | Abs (v, t) -> small_step_no env (subset v e2 t)
+        | e1 ->
+            small_step_no env e1 >>= fun e1 ->
+            small_step_no env e2 >>= fun e2 -> return @@ App (e1, e2))
 end
