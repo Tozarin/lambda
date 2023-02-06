@@ -1,7 +1,7 @@
 (library
  (name lambda)
  (public_name lambda)
- (modules parser ast interpreter utils)
+ (modules parser ast interpreter utils pprinter)
  (libraries angstrom)
  (preprocess
   (pps ppx_expect ppx_deriving.show ppx_compare))
