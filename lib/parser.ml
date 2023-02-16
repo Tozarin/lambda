@@ -53,7 +53,7 @@ let foon =
   trim funname <* trim @@ string "=" >>= fun f ->
   trim expr >>= fun e -> return @@ F (Outf (f, e))
 
-let ex = expr >>= fun e -> return @@ E e
+let ex = trim expr >>= fun e -> return @@ E e
 let parser = parse_string ~consume:All (trim @@ conde [ ex; foon ])
 
 type 'a parse_rezult = Parsed of 'a | Failed of string
@@ -196,8 +196,8 @@ let%expect_test _ =
   [%expect {| (E (Fun "1f")) |}]
 
 let%expect_test _ =
-  e_test_f {|[1]|};
-  [%expect {| : Funname can not be a number |}]
+  e_test_ss {|[1]|};
+  [%expect {| (E (Fun "1")) |}]
 
 let%expect_test _ =
   e_test_ss {|((λvarname.varname) varname)|};
