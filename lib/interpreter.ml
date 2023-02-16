@@ -110,6 +110,8 @@ module Interpreter (M : MONADERROR) = struct
     ]
 
   let prep = function [] -> FunMap.empty | l -> FunMap.of_seq (List.to_seq l)
+  let abs x y = return @@ Abs (x, y)
+  let app x y = return @@ App (x, y)
 
   let dgen n =
     let rec helper acc = function
@@ -178,9 +180,13 @@ module Interpreter (M : MONADERROR) = struct
         | _ -> small_step_cbn env e1 >>= fun e1 -> return @@ App (e1, e2))
 
   (*TODO: make beauty*)
-  let rec small_step_no env = function
+  let rec small_step_no env =
+    let is_f_simp f e = f env e >>= fun e' -> return (0 = compare_expr e e') in
+    function
     | Var x -> return @@ Var x
-    | Abs (x, y) -> small_step_no env y >>= fun y -> return @@ Abs (x, y)
+    | Abs (x, y) ->
+        is_f_simp small_step_no y >>= fun c ->
+        if c then abs x y else small_step_no env y >>= fun y -> abs x y
     | Fun x ->
         let e x =
           match int_of_string_opt x with
@@ -190,11 +196,20 @@ module Interpreter (M : MONADERROR) = struct
               | Some x -> return x
               | None -> error @@ "Can not find function " ^ x)
         in
-        e x >>= fun e -> small_step_no env e
+        e x
     | App (e1, e2) -> (
-        small_step_cbn env e1 >>= function
-        | Abs (v, t) -> small_step_no env (subset v e2 t)
+        match e1 with
+        | Abs (v, t) -> return @@ subset v e2 t
         | e1 ->
-            small_step_no env e1 >>= fun e1 ->
-            small_step_no env e2 >>= fun e2 -> return @@ App (e1, e2))
+            let foo1 f e1 e2 k =
+              is_f_simp f e1 >>= fun c ->
+              if c then k e1 e2 else f env e1 >>= fun e1 -> app e1 e2
+            in
+            let foo2 f e1 e2 k =
+              is_f_simp f e2 >>= fun c ->
+              if c then k e1 e2 else f env e2 >>= fun e1 -> app e1 e2
+            in
+            foo1 small_step_cbn e1 e2 (fun e1 e2 ->
+                foo1 small_step_no e1 e2 (fun e1 e2 ->
+                    foo2 small_step_no e1 e2 (fun e1 e2 -> app e1 e2))))
 end
