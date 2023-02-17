@@ -227,10 +227,8 @@ module Interpreter (M : MONADERROR) = struct
         in
         e x
     | App (e1, e2) ->
-        is_f_simp env small_step_cbv e2 >>= fun c ->
-        if c then
-          match e1 with
-          | Abs (v, t) -> return @@ subset v e2 t
-          | e1 -> small_step_cbv env e1 >>= fun e1 -> app e1 e2
-        else small_step_cbv env e2 >>= fun e2 -> app e1 e2
+        foo2 env small_step_cbv e1 e2 (fun e1 e2 ->
+            match e1 with
+            | Abs (v, t) -> return @@ subset v e2 t
+            | e1 -> small_step_cbv env e1 >>= fun e1 -> app e1 e2)
 end
