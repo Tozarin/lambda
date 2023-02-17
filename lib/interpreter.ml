@@ -187,7 +187,7 @@ module Interpreter (M : MONADERROR) = struct
     | App (e1, e2) -> (
         match e1 with
         | Abs (v, t) -> return @@ subset v e2 t
-        | _ -> small_step_cbn env e1 >>= fun e1 -> app e1 e2)
+        | e1 -> small_step_cbn env e1 >>= fun e1 -> app e1 e2)
 
   (*TODO: make beauty*)
   let rec small_step_no env = function
@@ -226,14 +226,11 @@ module Interpreter (M : MONADERROR) = struct
               | None -> error @@ "Can not find function " ^ x)
         in
         e x
-    | App (e1, e2) -> (
-        match e1 with
-        | Abs (v, t) ->
-            is_f_simp env small_step_cbv e2 >>= fun c ->
-            if c then return @@ subset v e2 t
-            else small_step_cbv env e2 >>= fun e2 -> app e1 e2
-        | e1 ->
-            is_f_simp env small_step_cbv e2 >>= fun c ->
-            if c then app e1 e2
-            else small_step_cbv env e2 >>= fun e2 -> app e1 e2)
+    | App (e1, e2) ->
+        is_f_simp env small_step_cbv e2 >>= fun c ->
+        if c then
+          match e1 with
+          | Abs (v, t) -> return @@ subset v e2 t
+          | e1 -> small_step_cbv env e1 >>= fun e1 -> app e1 e2
+        else small_step_cbv env e2 >>= fun e2 -> app e1 e2
 end
