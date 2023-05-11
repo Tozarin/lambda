@@ -4,7 +4,7 @@
 
 open Ast
 
-let slen = 120
+let slen = 100000000000000000
 let tab = "  "
 let len s = String.length @@ String.concat "" s
 
