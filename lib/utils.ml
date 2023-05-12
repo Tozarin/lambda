@@ -12,3 +12,4 @@ let explode s =
 let implode x = String.of_seq (List.to_seq x)
 let is_char = function 'a' .. 'z' | 'A' .. 'Z' -> true | _ -> false
 let is_digit = function '0' .. '9' -> true | _ -> false
+let is_ws = function ' ' | '\n' | '\t' | '\r' -> true | _ -> false
