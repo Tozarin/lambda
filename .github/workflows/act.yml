@@ -6,10 +6,10 @@ jobs:
   gh-actions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
           submodules: recursive
-      - uses: avsm/setup-ocaml@master
+      - uses: avsm/setup-ocaml@main
       - run: opam reinstall -y bisect_ppx
       - run: opam install -y --deps-only .
       - run: opam list
