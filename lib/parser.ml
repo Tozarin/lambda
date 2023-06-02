@@ -46,9 +46,7 @@ let parse_useless_stuff =
   many parse_any_spaces
 
 let ( -/-> ) p msg =
-  
-
-match p with Getted -> return Getted | NotGetted -> fail msg
+  match p with Getted -> return Getted | NotGetted -> fail msg
 
 let s_parse_dot = parse_useless_stuff >>= fun _ -> parse_dot
 let s_parse_l_p = parse_useless_stuff >>= fun _ -> parse_l_p
@@ -352,7 +350,7 @@ let%expect_test _ =
 
 let%expect_test _ =
   f_test_f {|[foo  ] = varname|};
-  [%expect{| : Symbol " " is not resolved |}]
+  [%expect {| : Symbol " " is not resolved |}]
 
 let%expect_test _ =
   f_test_f {|[  foo  ] = varname|};

@@ -9,7 +9,7 @@ open Lambda.Pprinter
 open Interpreter (Result)
 
 let rec run_strat env code =
-  match small_step_no env code with
+  match small_step_cbv env code with
   | Ok e ->
       Printf.printf "------------------------------------\n%s\n" (pp code);
       if 0 = compare_expr code e then Printf.printf "\nend\n"
