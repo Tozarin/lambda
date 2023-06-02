@@ -3,7 +3,7 @@
  (public_name lambda)
  (modules parser ast interpreter utils pprinter)
  (libraries angstrom)
-  (instrumentation
+ (instrumentation
   (backend bisect_ppx))
  (preprocess
   (pps ppx_expect ppx_deriving.show ppx_compare))
