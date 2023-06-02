@@ -34,3 +34,8 @@ jobs:
       - run: opam exec -- dune runtest
 
       - run: opam exec -- dune fmt
+
+
+      - run: opam exec -- bisect-ppx-report send-to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
