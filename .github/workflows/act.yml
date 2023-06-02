@@ -1,42 +1,20 @@
-name: Main workflow
+name: test
 
-on:
-  pull_request:
-  push:
-
-permissions: read-all
+on: [pull_request, push]
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-        ocaml-compiler:
-          - "4.14"
-
-    runs-on: ${{ matrix.os }}
-
+  gh-actions:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout tree
-        uses: actions/checkout@v3
-
-      - name: Set-up OCaml ${{ matrix.ocaml-compiler }}
-        uses: ocaml/setup-ocaml@v2
+      - uses: actions/checkout@master
         with:
-          ocaml-compiler: ${{ matrix.ocaml-compiler }}
-
+          submodules: recursive
+      - uses: avsm/setup-ocaml@master
       - run: opam reinstall -y bisect_ppx
+      - run: opam install -y --deps-only .
+      - run: opam list
 
-      - run: opam install -y --deps-only --with-test .
-
-      - run: opam exec -- dune build
-
-      - run: opam exec -- dune runtest --instrument-with bisect_ppx --force
-
-      - run: opam exec -- dune fmt
-
+      - run: opam exec -- dune exec --instrument-with bisect_ppx ./simple.exe -- github
 
       - run: opam exec -- bisect-ppx-report send-to Coveralls
         env:
