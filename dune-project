@@ -19,7 +19,6 @@
  (description "Lambda solver with small step")
  (depends
   ocaml
-  conf-nasm
   dune
   angstrom
   (ppx_inline_test :with-test)
