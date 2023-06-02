@@ -10,6 +10,7 @@ bug-reports: "https://github.com/tozarin/lambda/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.4"}
+  "bisect_ppx" {dev & >= "2.5.0"}
   "angstrom"
   "ppx_inline_test" {with-test}
   "qcheck-core"

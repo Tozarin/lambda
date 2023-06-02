@@ -20,6 +20,7 @@
  (depends
   ocaml
   dune
+  bisect_ppx
   angstrom
   (ppx_inline_test :with-test)
   qcheck-core
