@@ -46,7 +46,9 @@ let parse_useless_stuff =
   many parse_any_spaces
 
 let ( -/-> ) p msg =
-  match p with Getted -> return Getted | NotGetted -> fail msg
+  
+
+match p with Getted -> return Getted | NotGetted -> fail msg
 
 let s_parse_dot = parse_useless_stuff >>= fun _ -> parse_dot
 let s_parse_l_p = parse_useless_stuff >>= fun _ -> parse_l_p
